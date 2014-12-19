@@ -26,19 +26,19 @@ fn main() {
     println!("Setting sample rate to 8Msps");
     hackrf::set_sample_rate(&mut device, 8e6).unwrap();
 
-    println!("Setting sample rate to 4Msps/2");
-    hackrf::set_sample_rate_manual(&mut device, 4_000_000, 2).unwrap();
+    println!("Setting sample rate to 16Msps/2");
+    hackrf::set_sample_rate_manual(&mut device, 16_000_000, 2).unwrap();
 
     println!("Disabling power amplifier");
     hackrf::set_amp_enable(&mut device, false).unwrap();
 
-    println!("Setting LNA gain to 0 (=0dB)")
+    println!("Setting LNA gain to 2 (=16dB)")
     hackrf::set_lna_gain(&mut device, 0).unwrap();
 
-    println!("Setting VGA gain to 32 (=64dB)")
+    println!("Setting VGA gain to 4 (=8dB)")
     hackrf::set_vga_gain(&mut device, 32).unwrap();
 
-    println!("Setting TXVGA gain to 12 (=12dB)")
+    println!("Setting TXVGA gain to 6 (=6dB)")
     hackrf::set_txvga_gain(&mut device, 12).unwrap();
 
     println!("Disabling antenna power")
@@ -56,9 +56,14 @@ fn main() {
         true
     };
     hackrf::start_rx(&mut device, &mut rx_cb).unwrap();
-    std::io::timer::sleep(std::time::duration::Duration::milliseconds(500));
+    std::io::timer::sleep(std::time::duration::Duration::milliseconds(200));
     println!("Stopping RX stream");
     hackrf::stop_rx(&mut device).unwrap();
+
+    println!("Re-opening");
+    hackrf::close(device).unwrap();
+    let mut device = hackrf::open().unwrap();
+
 
     println!("Setting up TX stream");
     let mut tx_cb = |buffer: &mut[u8]| -> bool {
@@ -66,7 +71,7 @@ fn main() {
         true
     };
     hackrf::start_tx(&mut device, &mut tx_cb).unwrap();
-    std::io::timer::sleep(std::time::duration::Duration::milliseconds(500));
+    std::io::timer::sleep(std::time::duration::Duration::milliseconds(200));
     println!("Stopping TX stream");
     hackrf::stop_tx(&mut device).unwrap();
 

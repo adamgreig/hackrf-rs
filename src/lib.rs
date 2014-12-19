@@ -95,7 +95,7 @@ extern "C" fn rx_cb(transfer: *mut ffi::hackrf_transfer) -> libc::c_int {
 /// inside Rust after resolving memory stuff, so that users don't need to
 /// write unsafe code.
 extern "C" fn tx_cb(transfer: *mut ffi::hackrf_transfer) -> libc::c_int {
-    println!("rx_cb");
+    println!("tx_cb");
     let data = unsafe { &*transfer };
     let buffer_length = data.buffer_length as uint;
     let buffer: &mut[u8] = unsafe {
@@ -110,10 +110,15 @@ extern "C" fn tx_cb(transfer: *mut ffi::hackrf_transfer) -> libc::c_int {
 }
 
 
-/// Begin RX stream
-pub fn start_rx(device: &mut HackRFDevice, cb: &mut |&[u8]| -> bool)
+/// Begin RX stream.
+/// `callback` is a borrowed reference to a closure like:
+///     callback(buffer: &[u8]) -> bool
+/// which is given `buffer`, the RX buffer, and returns `true` if it should
+/// continue receiving data or `false` to stop. It may be called a few times
+/// after returning `false` while the system catches up.
+pub fn start_rx(device: &mut HackRFDevice, callback: &mut |&[u8]| -> bool)
                 -> Result<(), HackRFError> {
-    let ctx = (cb as *mut |&[u8]| -> bool) as *mut libc::c_void;
+    let ctx = (callback as *mut |&[u8]| -> bool) as *mut libc::c_void;
     match unsafe { ffi::hackrf_start_rx(device.ptr, rx_cb, ctx) } {
         ffi::HACKRF_SUCCESS => Ok(()),
         err => Err(hackrf_error(err))
@@ -129,9 +134,15 @@ pub fn stop_rx(device: &mut HackRFDevice) -> Result<(), HackRFError> {
 }
 
 /// Begin TX stream
-pub fn start_tx(device: &mut HackRFDevice, cb: &mut |&mut[u8]| -> bool)
+/// `callback` is a borrowed reference to a closure like:
+///     callback(buffer: &mut[u8]) -> bool
+/// which is given `buffer`, the TX buffer, and returns `true` if it should
+/// continue sending data or `false` to stop. It may be called a few times
+/// after returning `false` while the system catches up.
+/// Modify the TX slice at leisure and it will be transmitted over the radio.
+pub fn start_tx(device: &mut HackRFDevice, callback: &mut |&mut[u8]| -> bool)
                 -> Result<(), HackRFError> {
-    let ctx = (cb as *mut |&mut[u8]| -> bool) as *mut libc::c_void;
+    let ctx = (callback as *mut |&mut[u8]| -> bool) as *mut libc::c_void;
     match unsafe { ffi::hackrf_start_tx(device.ptr, tx_cb, ctx) } {
         ffi::HACKRF_SUCCESS => Ok(()),
         err => Err(hackrf_error(err))
