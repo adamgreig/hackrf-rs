@@ -73,21 +73,48 @@ pub fn close(device: HackRFDevice) -> Result<(), HackRFError> {
         }
 }
 
+/// The library defines the C callback, which will itself call a closure
+/// inside Rust after resolving memory stuff, so that users don't need to
+/// write unsafe code.
 extern "C" fn rx_cb(transfer: *mut ffi::hackrf_transfer) -> libc::c_int {
     println!("rx_cb");
-    return 0;
+    let data = unsafe { &*transfer };
+    let valid_length = data.valid_length as uint;
+    let buffer: &[u8] = unsafe {
+        std::slice::from_raw_mut_buf(&data.buffer, valid_length)
+    };
+    let cb_ptr = data.rx_ctx as *mut |&[u8]| -> bool;
+    let cb: &mut |&[u8]| -> bool = unsafe { &mut *cb_ptr };
+    match (*cb)(buffer) {
+        true => 0 as libc::c_int,
+        false => 1 as libc::c_int
+    }
 }
 
+/// The library defines the C callback, which will itself call a closure
+/// inside Rust after resolving memory stuff, so that users don't need to
+/// write unsafe code.
 extern "C" fn tx_cb(transfer: *mut ffi::hackrf_transfer) -> libc::c_int {
-    println!("tx_cb");
-    return 0;
+    println!("rx_cb");
+    let data = unsafe { &*transfer };
+    let buffer_length = data.buffer_length as uint;
+    let buffer: &mut[u8] = unsafe {
+        std::slice::from_raw_mut_buf(&data.buffer, buffer_length)
+    };
+    let cb_ptr = data.tx_ctx as *mut |&mut[u8]| -> bool;
+    let cb: &mut |&mut[u8]| -> bool = unsafe { &mut *cb_ptr };
+    match (*cb)(buffer) {
+        true => 0 as libc::c_int,
+        false => 1 as libc::c_int
+    }
 }
 
 
 /// Begin RX stream
-pub fn start_rx(device: &mut HackRFDevice) -> Result<(), HackRFError> {
-    let mut ctx: libc::c_void = unsafe { std::mem::uninitialized() };
-    match unsafe { ffi::hackrf_start_rx(device.ptr, rx_cb, &mut ctx) } {
+pub fn start_rx(device: &mut HackRFDevice, cb: &mut |&[u8]| -> bool)
+                -> Result<(), HackRFError> {
+    let ctx = (cb as *mut |&[u8]| -> bool) as *mut libc::c_void;
+    match unsafe { ffi::hackrf_start_rx(device.ptr, rx_cb, ctx) } {
         ffi::HACKRF_SUCCESS => Ok(()),
         err => Err(hackrf_error(err))
     }
@@ -102,9 +129,10 @@ pub fn stop_rx(device: &mut HackRFDevice) -> Result<(), HackRFError> {
 }
 
 /// Begin TX stream
-pub fn start_tx(device: &mut HackRFDevice) -> Result<(), HackRFError> {
-    let mut ctx: libc::c_void = unsafe { std::mem::uninitialized() };
-    match unsafe { ffi::hackrf_start_rx(device.ptr, tx_cb, &mut ctx) } {
+pub fn start_tx(device: &mut HackRFDevice, cb: &mut |&mut[u8]| -> bool)
+                -> Result<(), HackRFError> {
+    let ctx = (cb as *mut |&mut[u8]| -> bool) as *mut libc::c_void;
+    match unsafe { ffi::hackrf_start_tx(device.ptr, tx_cb, ctx) } {
         ffi::HACKRF_SUCCESS => Ok(()),
         err => Err(hackrf_error(err))
     }

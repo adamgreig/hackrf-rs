@@ -3,8 +3,8 @@ extern crate hackrf;
 fn main() {
     hackrf::init().unwrap();
     
+    println!("Opening device.");
     let mut device = hackrf::open().unwrap();
-    println!("Device opened.");
 
     let board_id = hackrf::board_id_read(&mut device).unwrap();
     println!("Board ID: {}", board_id);
@@ -51,18 +51,27 @@ fn main() {
     println!("bw2={}", bw2);
 
     println!("Setting up RX stream");
-    hackrf::start_rx(&mut device).unwrap();
+    let mut rx_cb = |buffer: &[u8]| -> bool {
+        println!("rx");
+        true
+    };
+    hackrf::start_rx(&mut device, &mut rx_cb).unwrap();
     std::io::timer::sleep(std::time::duration::Duration::milliseconds(500));
     println!("Stopping RX stream");
     hackrf::stop_rx(&mut device).unwrap();
-    
+
     println!("Setting up TX stream");
-    hackrf::start_tx(&mut device).unwrap();
+    let mut tx_cb = |buffer: &mut[u8]| -> bool {
+        println!("tx");
+        true
+    };
+    hackrf::start_tx(&mut device, &mut tx_cb).unwrap();
     std::io::timer::sleep(std::time::duration::Duration::milliseconds(500));
     println!("Stopping TX stream");
     hackrf::stop_tx(&mut device).unwrap();
+
+    println!("Closing device.");
     hackrf::close(device).unwrap();
-    println!("Device closed.");
 
     hackrf::exit().unwrap();
 }
