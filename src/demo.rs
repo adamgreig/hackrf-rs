@@ -55,8 +55,8 @@ fn main() {
     println!("bw2={}", bw2);
 
     println!("Setting up RX stream");
-    let mut rx_cb = |buffer: &[u8]| -> bool {
-        println!("rx");
+    let mut rx_cb = |_: &[u8]| -> bool {
+        println!("rx cb");
         true
     };
     hackrf::start_rx(&mut device, &mut rx_cb).unwrap();
@@ -70,8 +70,8 @@ fn main() {
 
 
     println!("Setting up TX stream");
-    let mut tx_cb = |buffer: &mut[u8]| -> bool {
-        println!("tx");
+    let mut tx_cb = |_: &mut[u8]| -> bool {
+        println!("tx cb");
         true
     };
     hackrf::start_tx(&mut device, &mut tx_cb).unwrap();

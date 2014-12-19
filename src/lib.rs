@@ -78,7 +78,6 @@ pub fn close(device: HackRFDevice) -> Result<(), HackRFError> {
 /// inside Rust after resolving memory stuff, so that users don't need to
 /// write unsafe code.
 extern "C" fn rx_cb(transfer: *mut ffi::hackrf_transfer) -> libc::c_int {
-    println!("rx_cb");
     let data = unsafe { &*transfer };
     let valid_length = data.valid_length as uint;
     let buffer: &[u8] = unsafe {
@@ -96,7 +95,6 @@ extern "C" fn rx_cb(transfer: *mut ffi::hackrf_transfer) -> libc::c_int {
 /// inside Rust after resolving memory stuff, so that users don't need to
 /// write unsafe code.
 extern "C" fn tx_cb(transfer: *mut ffi::hackrf_transfer) -> libc::c_int {
-    println!("tx_cb");
     let data = unsafe { &*transfer };
     let buffer_length = data.buffer_length as uint;
     let buffer: &mut[u8] = unsafe {
