@@ -1,0 +1,5 @@
+[package]
+
+name = "hackrf"
+version = "0.0.1"
+authors = ["Adam Greig <adam@adamgreig.com>"]
