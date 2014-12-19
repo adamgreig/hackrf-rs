@@ -1,5 +1,6 @@
-// Rust bindings for libhackrf
-// Adam Greig <adam@adamgreig.com> Dec 2014
+// Rust interface to libhackrf FFI bindings
+// Copyright Adam Greig <adam@adamgreig.com> 2014
+// Licensed under MIT license
 
 #![allow(dead_code)]
 

@@ -1,3 +1,7 @@
+// FFI bindings to hackrf.h
+// Copyright Adam Greig <adam@adamgreig.com> 2014
+// Licensed under MIT license
+
 use libc::{c_void, c_uint, c_int, c_char, c_double,
            uint8_t, uint32_t, uint64_t};
 

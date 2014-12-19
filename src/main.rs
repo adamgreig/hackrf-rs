@@ -1,3 +1,7 @@
+// Demonstration of the hackrf crate
+// Copyright Adam Greig <adam@adamgreig.com> 2014
+// Licensed under MIT license
+
 extern crate hackrf;
 
 fn main() {
