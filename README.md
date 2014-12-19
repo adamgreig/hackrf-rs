@@ -19,7 +19,8 @@ without closing and re-opening the device in between. This behaviour is nothing
 to do with Rust (a super simple C sketch demonstrates the same effect) so if
 you have any ideas please shout.
 
-`main.rs` contains a very simple example that doesn't do anything yet.
+`demo.rs` contains a very simple example that doesn't do anything interesting
+with the radio data yet.
 
 This is probably not the world's most idiosyncratic rust; please point out
 anything that could be nicer. This probably isn't packaged or documented in the
