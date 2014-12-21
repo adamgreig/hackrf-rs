@@ -36,16 +36,16 @@ fn main() {
     println!("Disabling power amplifier");
     hackrf::set_amp_enable(&mut device, false).unwrap();
 
-    println!("Setting LNA gain to 2 (=16dB)")
+    println!("Setting LNA gain to 2 (=16dB)");
     hackrf::set_lna_gain(&mut device, 0).unwrap();
 
-    println!("Setting VGA gain to 4 (=8dB)")
+    println!("Setting VGA gain to 4 (=8dB)");
     hackrf::set_vga_gain(&mut device, 32).unwrap();
 
-    println!("Setting TXVGA gain to 6 (=6dB)")
+    println!("Setting TXVGA gain to 6 (=6dB)");
     hackrf::set_txvga_gain(&mut device, 12).unwrap();
 
-    println!("Disabling antenna power")
+    println!("Disabling antenna power");
     hackrf::set_antenna_enable(&mut device, false).unwrap();
 
     let bw1 = hackrf::compute_baseband_filter_bw_round_down_lt(2000);
