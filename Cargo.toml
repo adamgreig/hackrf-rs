@@ -8,7 +8,7 @@ repository = "https://github.com/adamgreig/hackrf-rs"
 homepage = "https://github.com/adamgreig/hackrf-rs"
 readme = "README.md"
 keywords = ["SDR", "ffi", "hackrf"]
-license = "MIT"
+license = "MIT OR Apache-2.0"
 
 [lib]
 name = "hackrf"
